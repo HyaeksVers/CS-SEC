@@ -61,7 +61,6 @@ static const byte THRUSTER_LEFT = 9;
 static const byte THRUSTER_RIGHT = 10;
 static const byte THRUSTER_VERTICAL = 11;
 static const byte THRUSTER_VERTICAL2 = 6;
-static const byte TILT_CAM = 5;
 static const byte JS_ADC_3 = A3;
 
 
@@ -70,7 +69,6 @@ Servo thrusterLeft;
 Servo thrusterRight;
 Servo thrusterVertical;
 Servo thrusterVertical2;
-Servo tilt;
 
 void setup() {
   // Set up serial port to print inputs and outputs
@@ -81,13 +79,11 @@ void setup() {
   thrusterRight.attach(THRUSTER_RIGHT);
   thrusterVertical.attach(THRUSTER_VERTICAL);
   thrusterVertical2.attach(THRUSTER_VERTICAL2);
-  tilt.attach(TILT_CAM);
   // Set output signal to 1500 microsecond pulse (stopped command)
   thrusterLeft.writeMicroseconds(CENTER_THROTTLE);
   thrusterRight.writeMicroseconds(CENTER_THROTTLE);
   thrusterVertical.writeMicroseconds(CENTER_THROTTLE);
   thrusterVertical2.writeMicroseconds(CENTER_THROTTLE);
-  tilt.writeMicroseconds(1500); 
   // Delay to allow time for ESCs to initialize
   delay(7000); 
 }
@@ -117,12 +113,6 @@ void loop() {
                               -MAX_VERTICAL_THROTTLE2, // Command low value
                               MAX_VERTICAL_THROTTLE2); // Command high value
                               
-  int tiltcam   = map(analogRead(JS_ADC_3),
-                     JS_CENTER_3-JS_DIR_3*JS_RANGE_3,
-                     JS_CENTER_2+JS_DIR_2*JS_RANGE_3,
-                     -TILT_CAM,
-                      TILT_CAM);
-
    
   // Combine the "stopped" command with forward, turn, and vertical and send 
   // to the ESCs.
@@ -130,13 +120,11 @@ void loop() {
   thrusterRight.writeMicroseconds(CENTER_THROTTLE+forwardCommand-turnCommand);
   thrusterVertical.writeMicroseconds(CENTER_THROTTLE+verticalCommand);
   thrusterVertical2.writeMicroseconds(CENTER_THROTTLE+vertical2Command);
-  tilt.writeMicroseconds(1500+tiltcam);
   // Output via serial
   Serial.print("Fwd: "); Serial.print(forwardCommand);
   Serial.print("Turn: "); Serial.print(turnCommand);
   Serial.print("Vert: "); Serial.print(verticalCommand);
   Serial.print("Ver2: "); Serial.print(vertical2Command);
-  Serial.print("TiltC: "); Serial.print(tiltcam);
   Serial.println("");
 
   // Delay 1/10th of a second. No need to update at super fast rates.
